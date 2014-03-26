@@ -5,17 +5,17 @@ modules.define('map-view-popup', [
     'ymaps-map',
     'ymaps-control-centered',
     'ymaps-layout-popup'
-], function (provide, inherit, jQuery, ymaps, map, CenteredControl, PopupLayout) {
+], function (provide, inherit, jQuery, ymaps, map, centeredControl, PopupLayout) {
 
     var PopupMapView = inherit({
         __constructor: function () {
             this.events = jQuery({});
-            this._control = this._createControl();
             this._timeoutId == null;
             this._data = null;
         },
         render: function (data) {
-            map.controls.add(this._control);
+            this._control = this._getTunedControl(data);
+            this.show();
             this._attachHandlers();
 
             this._timeoutId = window.setTimeout(function () {
@@ -25,14 +25,13 @@ modules.define('map-view-popup', [
 
             if(data) {
                 this._data = data;
-                this._control.data.set(data);
             }
 
             return this;
         },
         clear: function () {
+            this.hide();
             this._detachHandlers();
-            map.controls.remove(this._control);
             this._data = null;
             if(this._timeoutId) {
                 window.clearTimeout(this._timeoutId);
@@ -54,14 +53,16 @@ modules.define('map-view-popup', [
 
             return this;
         },
-        _createControl: function (data, options) {
-            return new CenteredControl({
-                data: data,
-                options: {
-                    float: 'none',
-                    contentBodyLayout: PopupLayout
-                }
-            });
+        _getTunedControl: function (data, options) {
+            data = data || {},
+            options = options || {};
+
+            centeredControl.data.set(data);
+            centeredControl.options
+                .set(options)
+                .set('contentBodyLayout', PopupLayout);
+
+            return centeredControl;
         },
         _attachHandlers: function () {
             this._control.events

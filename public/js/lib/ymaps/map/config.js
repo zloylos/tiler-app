@@ -1,4 +1,4 @@
-modules.define('ymaps-map-config', function (provide) {
+modules.define('ymaps-map-config', function (provide, centeredControl) {
 
     provide({
         container: 'map',

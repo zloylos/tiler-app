@@ -5,27 +5,19 @@ modules.define('map-view-preloader', [
     'ymaps-map',
     'ymaps-control-centered',
     'ymaps-layout-preloader'
-], function (provide, inherit, jQuery, ymaps, map, CenteredControl, PreloaderLayout) {
+], function (provide, inherit, jQuery, ymaps, map, centeredControl, PreloaderLayout) {
 
     var PreloaderMapView = inherit({
         __constructor: function () {
             this.events = jQuery({});
-            this._control = this._createControl();
         },
         render: function (data) {
-            if(!this._control.getParent()) {
-                map.controls.add(this._control);
-            }
-
-            if(data) {
-                this._control.data.set(data);
-            }
-
+            this._control = this._getTunedControl(data);
+            this.show();
             return this;
         },
         clear: function () {
-            map.controls.remove(this._control);
-
+            this.hide();
             return this;
         },
         show: function () {
@@ -38,15 +30,17 @@ modules.define('map-view-preloader', [
 
             return this;
         },
-        _createControl: function (data, options) {
-            return new CenteredControl({
-                data: data,
-                options: {
-                    float: 'none',
-                    contentBodyLayout: PreloaderLayout
-                }
-            });
-        }
+        _getTunedControl: function (data, options) {
+            data = data || {},
+            options = options || {};
+
+            centeredControl.data.set(data);
+            centeredControl.options
+                .set(options)
+                .set('contentBodyLayout', PreloaderLayout);
+
+            return centeredControl;
+        },
     });
 
     provide(PreloaderMapView);

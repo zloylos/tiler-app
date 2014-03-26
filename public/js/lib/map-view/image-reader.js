@@ -5,29 +5,27 @@ modules.define('map-view-image-reader', [
     'ymaps-map',
     'ymaps-control-centered',
     'ymaps-layout-image-loader'
-], function (provide, inherit, jQuery, ymaps, map, CenteredControl, ImageLoaderLayout) {
+], function (provide, inherit, jQuery, ymaps, map, centeredControl, ImageLoaderLayout) {
 
     var ImageReaderMapView = inherit({
         __constructor: function () {
             this.events = jQuery({});
-            this._control = this._createControl();
             this._source = null;
             this._data = null;
         },
         render: function (data) {
-            map.controls.add(this._control);
-            this._attachHandlers();
-
-            if(data) {
+            if (data) {
                 this._data = data;
-                this._control.data.set(data);
             }
-
+            this._control = this._getTunedControl(data);
+            this.show();
+            this._attachHandlers();
+            
             return this;
         },
         clear: function () {
+            this.hide();
             this._detachHandlers();
-            map.controls.remove(this._control);
             this._source = null;
             this._data = null;
 
@@ -49,14 +47,16 @@ modules.define('map-view-image-reader', [
 
             return this;
         },
-        _createControl: function (data, options) {
-            return new CenteredControl({
-                data: data,
-                options: {
-                    float: 'none',
-                    contentBodyLayout: ImageLoaderLayout
-                }
-            });
+        _getTunedControl: function (data, options) {
+            data = data || {},
+            options = options || {};
+
+            centeredControl.data.set(data);
+            centeredControl.options
+                .set(options)
+                .set('contentBodyLayout', ImageLoaderLayout);
+
+            return centeredControl;
         },
         _attachHandlers: function () {
             this._control.events

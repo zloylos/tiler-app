@@ -1,11 +1,12 @@
 modules.define('ymaps-control-centered', [
     'inherit',
     'ymaps',
-    'ymaps-control-base'
-], function (provide, inherit, ymaps, BaseControl) {
+    'ymaps-control-base',
+    'jquery'
+], function (provide, inherit, ymaps, BaseControl, $) {
 
     var ContentLayout = ymaps.templateLayoutFactory.createClass([
-            '<div class="container-fluid" style="left:{{ options.position.left }}px;top:{{ options.position.top }}px;">',
+            '<div class="container-fluid" ',
                 '{% include options.contentBodyLayout %}',
             '</div>'
         ].join(''), {
@@ -33,22 +34,31 @@ modules.define('ymaps-control-centered', [
             _setPosition: function () {
                 var control = this.getData().control,
                     mapSize = control.getMap().container.getSize(),
-                    parentElement = this.getParentElement();
+                    layoutContentElement = this.getElement().firstChild;
 
                 control.options.set('position', {
-                    top: mapSize[1] / 2 - parentElement.offsetHeight / 2,
-                    left: mapSize[0] / 2 - parentElement.offsetWidth / 2
+                    top: mapSize[1] / 2 - layoutContentElement.offsetHeight / 2,
+                    left: mapSize[0] / 2 - layoutContentElement.offsetWidth / 2
                 });
             }
-        });
+        }),
+        ContentBodyLayout = ymaps.templateLayoutFactory.createClass('');
+
+    ymaps.layout.storage
+        .add('centeredContentBodyLayout', ContentBodyLayout)
+        .add('centeredContentLayout', ContentLayout);
 
     var CenteredControl = inherit(BaseControl, {
         __constructor: function () {
             this.__base.apply(this, arguments);
 
-            this.options.set('contentLayout', ContentLayout);
+            this.options.set({
+                contentLayout: ContentLayout,
+                contentBodyLayout: ContentBodyLayout,
+                float: 'none'
+            });
         }
     });
 
-    provide(CenteredControl);
+    provide(new CenteredControl());
 });

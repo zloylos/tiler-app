@@ -43,6 +43,9 @@ modules.define('app', [
             );
 
             return this;
+        },
+        _attachHandlers: function () {
+
         }
     });
 

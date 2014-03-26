@@ -36,14 +36,25 @@ modules.define('ymaps-control-base', [
          */
         setParent: function (parent) {
             this._destroy();
+             
+            var controlParent = this._parent;
             this._parent = parent;
 
+            if (controlParent !== parent) {
+                this.events.fire('parentchange', {
+                    oldParent: controlParent,
+                    newParent: parent
+                });
+            }
+
             if(parent) {
+                this._map = parent.getMap();
                 parent.getChildElement(this)
                     .done(this._init, this);
             }
             else {
                 this._layout.setParentElement(null);
+                this._map = null;
             }
 
             return this;
@@ -58,6 +69,11 @@ modules.define('ymaps-control-base', [
         getParent: function () {
             return this._parent;
         },
+
+        getMap: function () {
+            return this._map;
+        },
+
         _init: function (el) {
             this._map = this._parent.getMap();
             this._layout.setParentElement(
